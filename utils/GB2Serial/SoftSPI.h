@@ -10,6 +10,10 @@
 
 #include <stdint.h>
 
+#define SOFTSPI_CLK_READ_UP		1
+#define SOFTSPI_CLK_READ_DOWN	2
+#define SOFTSPI_CLK_READ_CHG 	0
+
 /**
  * To function, define somewhere BEFORE including this .h file
 

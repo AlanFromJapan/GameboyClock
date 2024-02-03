@@ -23,6 +23,9 @@
 	#define SOFTSPI_MOSI	6
 	#define SOFTSPI_MISO	5
 
+	//On which clock change to read
+	#define SOFTSPI_CLK_READFLAG 	SOFTSPI_CLK_READ_UP
+
 	//Used PCIEx interrupt (0-1-2 available): IT DEPENDS ON THE PIN YOU USE FOR MOSI.
 	//  So read the doc (ie. Atmega328 port D7 = PCINT23 therefore it's PCIE2)
 	//  To make sure ONLY that pin triggers the interrupt, you have to enable it
@@ -120,32 +123,39 @@ ISR(SOFTSPI_IntVect) {
 	PORTC &= ~0x01;
 #endif //_DEBUG_BLINK
 
-	//Read MOSI on CLK going UP (see https://mansfield-devine.com/speculatrix/2018/01/avr-basics-spi-on-the-atmega-part-1/)
-	uint8_t mosi = SOFTSPI_PIN & (1 << SOFTSPI_MOSI);
-	if (mosi != 0){
-		//set the bit in the buffer byte (assume the bitmask is at the right place)
-		_reception_buf |= _reception_buf_bitmask;
+
+	if (SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_CHG
+		|| SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_UP && ((SOFTSPI_PIN & (1 << SOFTSPI_CLK))) != 0
+		|| SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_DOWN && ((SOFTSPI_PIN & (1 << SOFTSPI_CLK))) == 0) {
+
+		//Read MOSI on CLK going UP (see https://mansfield-devine.com/speculatrix/2018/01/avr-basics-spi-on-the-atmega-part-1/)
+		uint8_t mosi = SOFTSPI_PIN & (1 << SOFTSPI_MOSI);
+		if (mosi != 0){
+			//set the bit in the buffer byte (assume the bitmask is at the right place)
+			_reception_buf |= _reception_buf_bitmask;
+		}
+		//else
+			//optim: reception buffer is init at 0x00 so overwriting a zero by a zero can be skipped...
+
+
+		//completed byte?
+		if (_reception_buf_bitmask == 0x80){
+			//received last bit: store and get ready for next byte
+
+			//store in the circular buffer
+			_queueByte(_reception_buf);
+
+			//reset mask & reception buff
+			_reception_buf_bitmask = 1;
+			_reception_buf = 0;
+		}
+		else {
+			//get ready for next bit
+			_reception_buf_bitmask = _reception_buf_bitmask << 1;
+		}
 	}
-	//else
-		//optim: reception buffer is init at 0x00 so overwriting a zero by a zero can be skipped...
 
 
-
-	//completed byte?
-	if (_reception_buf_bitmask == 0x80){
-		//received last bit: store and get ready for next byte
-
-		//store in the circular buffer
-		_queueByte(_reception_buf);
-
-		//reset mask & reception buff
-		_reception_buf_bitmask = 1;
-		_reception_buf = 0;
-	}
-	else {
-		//get ready for next bit
-		_reception_buf_bitmask = _reception_buf_bitmask << 1;
-	}
 
 
 	//Not reti() on non-naked ISR (that causes the avr to reset in may case...)
