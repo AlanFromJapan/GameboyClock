@@ -1,5 +1,6 @@
 /*
  * SoftSPI.c
+ *   A software version of SPI just by me, for the fun.
  *
  *  Created on: Feb 1, 2024
  *      Author: alan
@@ -125,8 +126,8 @@ ISR(SOFTSPI_IntVect) {
 
 
 	if (SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_CHG
-		|| SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_UP && ((SOFTSPI_PIN & (1 << SOFTSPI_CLK))) != 0
-		|| SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_DOWN && ((SOFTSPI_PIN & (1 << SOFTSPI_CLK))) == 0) {
+		|| (SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_UP && ((SOFTSPI_PIN & (1 << SOFTSPI_CLK))) != 0)
+		|| (SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_DOWN && ((SOFTSPI_PIN & (1 << SOFTSPI_CLK))) == 0)) {
 
 		//Read MOSI on CLK going UP (see https://mansfield-devine.com/speculatrix/2018/01/avr-basics-spi-on-the-atmega-part-1/)
 		uint8_t mosi = SOFTSPI_PIN & (1 << SOFTSPI_MOSI);
