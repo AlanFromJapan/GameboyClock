@@ -8,6 +8,8 @@
 #ifndef SOFTSPI_H_
 #define SOFTSPI_H_
 
+#include <stdint.h>
+
 /**
  * To function, define somewhere BEFORE including this .h file
 
@@ -30,6 +32,15 @@
  */
 void softspi_setup();
 
+/**
+ * TRUE if there is data ready to read in the buffer
+ */
+uint8_t softspi_hasData() ;
 
+/**
+ * Returns the next byte available in the buffer, or 0.
+ * Use softspi_hasData() to confirm if data is ready to read in the first place.
+ */
+uint8_t softspi_getByte();
 
 #endif /* SOFTSPI_H_ */
