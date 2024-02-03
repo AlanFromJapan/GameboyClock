@@ -25,7 +25,7 @@
 	#define SOFTSPI_MISO	5
 
 	//On which clock change to read
-	#define SOFTSPI_CLK_READFLAG 	SOFTSPI_CLK_READ_UP
+	#define SOFTSPI_CLK_READFLAG 	SOFTSPI_CLK_READ_DOWN
 
 	//Expect to receive LSB first (fill byte buffer right to left) or MSB
 	#define SOFTSPI_BITORDER		SOFTSPI_BITORDER_MSB

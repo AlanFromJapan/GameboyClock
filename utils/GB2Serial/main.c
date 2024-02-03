@@ -21,6 +21,14 @@
 #include "serialComm.h"
 
 //Soft SPI using default settings (override defines HERE before include command)
+// YOU HAVE TO SET THEM ALL or NONE
+
+////On which clock change to read => GB SENDS on falling edge and READS on rising edge
+//#define SOFTSPI_CLK_READFLAG 	SOFTSPI_CLK_READ_DOWN
+//
+////Expect to receive LSB first (fill byte buffer right to left) or MSB => GB uses MSB
+//#define SOFTSPI_BITORDER		SOFTSPI_BITORDER_MSB
+
 #include "SoftSPI.h"
 
 /************************************************************************/
