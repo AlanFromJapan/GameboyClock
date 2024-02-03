@@ -14,6 +14,9 @@
 #define SOFTSPI_CLK_READ_DOWN	2
 #define SOFTSPI_CLK_READ_CHG 	0
 
+#define SOFTSPI_BITORDER_LSB 0
+#define SOFTSPI_BITORDER_MSB 1
+
 /**
  * To function, define somewhere BEFORE including this .h file
 

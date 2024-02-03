@@ -13,7 +13,7 @@
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
-#define _DEBUG_BLINK
+//#define _DEBUG_BLINK
 
 
 #ifndef SOFTSPI_PORT
@@ -26,6 +26,9 @@
 
 	//On which clock change to read
 	#define SOFTSPI_CLK_READFLAG 	SOFTSPI_CLK_READ_UP
+
+	//Expect to receive LSB first (fill byte buffer right to left) or MSB
+	#define SOFTSPI_BITORDER		SOFTSPI_BITORDER_MSB
 
 	//Used PCIEx interrupt (0-1-2 available): IT DEPENDS ON THE PIN YOU USE FOR MOSI.
 	//  So read the doc (ie. Atmega328 port D7 = PCINT23 therefore it's PCIE2)
@@ -138,7 +141,7 @@ ISR(SOFTSPI_IntVect) {
 		//else
 			//optim: reception buffer is init at 0x00 so overwriting a zero by a zero can be skipped...
 
-
+#if SOFTSPI_BITORDER == SOFTSPI_BITORDER_LSB
 		//completed byte?
 		if (_reception_buf_bitmask == 0x80){
 			//received last bit: store and get ready for next byte
@@ -154,6 +157,25 @@ ISR(SOFTSPI_IntVect) {
 			//get ready for next bit
 			_reception_buf_bitmask = _reception_buf_bitmask << 1;
 		}
+#endif //SOFTSPI_BITORDER == SOFTSPI_BITORDER_LSB
+#if SOFTSPI_BITORDER == SOFTSPI_BITORDER_MSB
+		//completed byte?
+		if (_reception_buf_bitmask == 0x01){
+			//received last bit: store and get ready for next byte
+
+			//store in the circular buffer
+			_queueByte(_reception_buf);
+
+			//reset mask & reception buff
+			_reception_buf_bitmask = 0x80;
+			_reception_buf = 0;
+		}
+		else {
+			//get ready for next bit
+			_reception_buf_bitmask = _reception_buf_bitmask >> 1;
+		}
+#endif //SOFTSPI_BITORDER == SOFTSPI_BITORDER_MSB
+
 	}
 
 

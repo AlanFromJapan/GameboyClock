@@ -63,7 +63,10 @@ int main(void) {
 			itoa(val, vBuff, 16);
 			USART_SendString("0x");
 			USART_SendString(vBuff);
-			USART_SendString(" ");
+			USART_SendString("(");
+			itoa(val, vBuff, 10);
+			USART_SendString(vBuff);
+			USART_SendString(")\n");
     	}
 
 		_delay_ms(100);
