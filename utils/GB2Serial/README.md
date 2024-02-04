@@ -1,6 +1,6 @@
 # GB2Serial
 
-A simple stepping stone projects that reads from the Gameboy Link cable using software SPI and pass it to the hardware UART (hardware serial).
+A simple stepping-stone project that reads from the Gameboy Link cable using software SPI and pass it to the hardware UART (hardware serial).
 This is a test (but standalone part) of the soft SPI library.
 
 ## Why not hardware SPI?
