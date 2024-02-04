@@ -49,8 +49,20 @@ volatile uint8_t _qtail = 0;
 
 //reception BYTE buffer (we receive the data bit by bit AND THEN put it in the reception queue when complete)
 volatile uint8_t _reception_buf = 0;
-//bit mask of which bit we update
-volatile uint8_t _reception_buf_bitmask = 1;
+//bit mask of which bit we update (must be initiated to the right value or will read strange values)
+volatile uint8_t _reception_buf_bitmask =
+#if SOFTSPI_BITORDER == SOFTSPI_BITORDER_LSB
+		0x01;
+#endif //SOFTSPI_BITORDER_LSB
+#if SOFTSPI_BITORDER == SOFTSPI_BITORDER_MSB
+		0x80;
+#endif //SOFTSPI_BITORDER_MSB
+
+//emission BYTE buffer (we send the data bit by bit)
+volatile uint8_t _emission_buf = 0;
+//bit mask of which bit we update (0x00 means nothing to send or done sending)
+volatile uint8_t _emission_buf_bitmask = 0;
+
 
 /**
  * Call once first to set ports
@@ -111,6 +123,31 @@ uint8_t softspi_getByte(){
 }
 
 
+/**
+ * Sends one byte of data over the SPI (ASYNCH!). The functions returns immediately BUT the byte is not sent yet.
+ * The clock is managed by the master (not us) so the byte is sent asynchronously.
+ * Call softspi_bytesent() to know if the road is clear to send another one (this function will NOT check).
+ */
+void softspi_sendByte(uint8_t b){
+	_emission_buf = b;
+
+#if SOFTSPI_BITORDER == SOFTSPI_BITORDER_LSB
+	_emission_buf_bitmask = 0x01;
+#endif //SOFTSPI_BITORDER_LSB
+
+#if SOFTSPI_BITORDER == SOFTSPI_BITORDER_MSB
+	_emission_buf_bitmask = 0x80;
+#endif //SOFTSPI_BITORDER_MSB
+
+}
+
+/**
+ * Returns if the previous to-be-sent byte was sent and you can send another one.
+ * (non blocking)
+ */
+int softspi_bytesent(){
+	return _emission_buf_bitmask == 0;
+}
 
 /**
  * Interrupt for pin change value
@@ -126,6 +163,7 @@ ISR(SOFTSPI_IntVect) {
 	//C0 off
 	PORTC &= ~0x01;
 #endif //_DEBUG_BLINK
+
 
 	//Read on rising, falling or both edges?
 	if (SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_CHG
