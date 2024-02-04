@@ -127,12 +127,11 @@ ISR(SOFTSPI_IntVect) {
 	PORTC &= ~0x01;
 #endif //_DEBUG_BLINK
 
-
+	//Read on rising, falling or both edges?
 	if (SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_CHG
 		|| (SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_UP && ((SOFTSPI_PIN & (1 << SOFTSPI_CLK))) != 0)
 		|| (SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_DOWN && ((SOFTSPI_PIN & (1 << SOFTSPI_CLK))) == 0)) {
 
-		//Read MOSI on CLK going UP (see https://mansfield-devine.com/speculatrix/2018/01/avr-basics-spi-on-the-atmega-part-1/)
 		uint8_t mosi = SOFTSPI_PIN & (1 << SOFTSPI_MOSI);
 		if (mosi != 0){
 			//set the bit in the buffer byte (assume the bitmask is at the right place)
