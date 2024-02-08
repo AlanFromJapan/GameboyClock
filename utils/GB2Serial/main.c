@@ -12,6 +12,7 @@
 //#define F_CPU 16000000L
 
 #include <stdlib.h>
+#include <string.h>
 
 //System includes
 #include <avr/io.h>
@@ -31,6 +32,9 @@
 
 #include "SoftSPI.h"
 
+//test message to send
+const char TEST_MESSAGE[] = "ABCDEFGH";
+
 /************************************************************************/
 /* Setup                                                                */
 /************************************************************************/
@@ -49,6 +53,45 @@ void mainSetup() {
 
 }
 
+
+/**
+ * Testing function for RECEPTION on the SPI and echo send to Serial UART (PC)
+ *
+ */
+inline void test_SoftSPI_reception() {
+	uint8_t val = 0;
+	while (softspi_hasData()) {
+		val = softspi_getByte();
+		char vBuff[15];
+		itoa(val, vBuff, 16);
+		USART_SendString("0x");
+		USART_SendString(vBuff);
+		USART_SendString("(");
+		itoa(val, vBuff, 10);
+		USART_SendString(vBuff);
+		USART_SendString(")\n");
+	}
+	_delay_ms(100);
+}
+
+/**
+ * Testing function for SENDING on the SPI and echo send to Serial UART (PC)
+ *
+ */
+static inline void test_SoftSPI_emission(const char c) {
+	USART_Transmit(c);
+	USART_SendString(" ");
+
+	while (!softspi_bytesent()){
+		;
+	}
+	//road is clear
+	softspi_sendByte(c);
+
+	_delay_ms(200);
+}
+
+
 /************************************************************************/
 /* Main                                                                 */
 /************************************************************************/
@@ -57,28 +100,29 @@ int main(void) {
 	mainSetup();
 
 	cli();
-	USART_SendString("\n\n------------------------");
-	USART_SendString("\nLet's start.\n");
+	USART_SendString("\n\n------------------------\n");
+	USART_SendString("Let's start.\n");
+
+
+	// ******************* Testing EMISSION *******************
+	USART_SendString("Testing EMISSION (from muC to GB + echo to Serial UART).\n");
 	sei();
 
-    while(1) {
+	while (1) {
+		for (uint8_t i = 0; i < strlen(TEST_MESSAGE); i++){
+			test_SoftSPI_emission(TEST_MESSAGE[i]);
+		}
+		_delay_ms(1000);
+	}
 
-    	uint8_t val = 0;
+/*
+	// ******************* Testing RECEPTION *******************
+	USART_SendString("Testing RECEPTION (from GB to muC + echo to Serial UART).\n");
+	sei();
 
-    	while (softspi_hasData()){
-    		val = softspi_getByte();
-			char vBuff[15];
-			itoa(val, vBuff, 16);
-			USART_SendString("0x");
-			USART_SendString(vBuff);
-			USART_SendString("(");
-			itoa(val, vBuff, 10);
-			USART_SendString(vBuff);
-			USART_SendString(")\n");
-    	}
-
-		_delay_ms(100);
-
-
-    }
+	while (1) {
+		test_SoftSPI_reception();
+	}
+*/
+	return 0;
 }

@@ -1,5 +1,6 @@
 /*
  * SoftSPI.h
+ *   Software implementation of a SPI **SLAVE**.
  *
  *  Created on: Feb 1, 2024
  *      Author: alan

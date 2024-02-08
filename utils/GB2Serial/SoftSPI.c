@@ -1,6 +1,6 @@
 /*
  * SoftSPI.c
- *   A software version of SPI just by me, for the fun.
+ *   A software version of SPI **SLAVE** just by me, for the fun.
  *
  *  Created on: Feb 1, 2024
  *      Author: alan
@@ -164,7 +164,7 @@ ISR(SOFTSPI_IntVect) {
 	PORTC &= ~0x01;
 #endif //_DEBUG_BLINK
 
-
+	// ******************************** RECEPTION ********************************************
 	//Read on rising, falling or both edges?
 	if (SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_CHG
 		|| (SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_UP && ((SOFTSPI_PIN & (1 << SOFTSPI_CLK))) != 0)
@@ -216,6 +216,44 @@ ISR(SOFTSPI_IntVect) {
 	}
 
 
+	// ******************************** EMISSION ********************************************
+	//Something to send and correct edge?
+	//BEWARE It's the **OPPOSITE** edge of reading (read on failing => write on rising)!
+	if (_emission_buf_bitmask != 0x00
+		&&
+		(
+			SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_CHG
+		|| (SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_UP && ((SOFTSPI_PIN & (1 << SOFTSPI_CLK))) == 0)
+		|| (SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_DOWN && ((SOFTSPI_PIN & (1 << SOFTSPI_CLK))) != 0)
+		)){
+
+
+#if SOFTSPI_BITORDER == SOFTSPI_BITORDER_LSB
+todo!!
+#endif //SOFTSPI_BITORDER == SOFTSPI_BITORDER_LSB
+#if SOFTSPI_BITORDER == SOFTSPI_BITORDER_MSB
+		//Sending is ALSO the OPPOSITE BIT ORDER as receiving, so MSB (on receive) means sending LSB
+		if ((_emission_buf & _emission_buf_bitmask) == 0){
+			//send a zero
+			SOFTSPI_PORT &= ~(1 << SOFTSPI_MISO);
+		}
+		else {
+			//send a one
+			SOFTSPI_PORT |= (1 << SOFTSPI_MISO);
+		}
+
+		//finished?
+		if (_emission_buf_bitmask == 0x01) {
+			//finished. This is a flag that will allow next byte to be put in the sending buffer
+			_emission_buf_bitmask = 0;
+		}
+		else{
+			//get ready for next byte
+			_emission_buf_bitmask = _emission_buf_bitmask >> 1;
+		}
+#endif //SOFTSPI_BITORDER == SOFTSPI_BITORDER_MSB
+
+	}
 
 
 	//Not reti() on non-naked ISR (that causes the avr to reset in may case...)
