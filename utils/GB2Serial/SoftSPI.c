@@ -8,6 +8,7 @@
 
 
 #include "SoftSPI.h"
+#include "SoftSPI-config.h"
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -15,31 +16,6 @@
 
 //#define _DEBUG_BLINK
 
-
-#ifndef SOFTSPI_PORT
-	#define SOFTSPI_PORT 	PORTD
-	#define SOFTSPI_DIR		DDRD
-	#define SOFTSPI_PIN		PIND
-	#define SOFTSPI_CLK		7
-	#define SOFTSPI_MOSI	6
-	#define SOFTSPI_MISO	5
-
-	//On which clock change to read
-	#define SOFTSPI_CLK_READFLAG 	SOFTSPI_CLK_READ_DOWN
-
-	//Expect to receive LSB first (fill byte buffer right to left) or MSB
-	#define SOFTSPI_BITORDER		SOFTSPI_BITORDER_MSB
-
-	//Used PCIEx interrupt (0-1-2 available): IT DEPENDS ON THE PIN YOU USE FOR MOSI.
-	//  So read the doc (ie. Atmega328 port D7 = PCINT23 therefore it's PCIE2)
-	//  To make sure ONLY that pin triggers the interrupt, you have to enable it
-	//  and that is done with PCMSKx register
-	#define SOFTSPI_PCIE			2
-	#define SOFTSPI_IntVect			PCINT2_vect
-	//in the mask PCMSK2, the PCINT23 (D7) is the leftmost bit (0x80)
-	#define SOFTSPI_IntPinMask		PCMSK2
-	#define SOFTSPI_IntPinMaskBit	7
-#endif
 
 //internal reception buffer queue
 #define SOFTSPI_BUFLEN 		8
@@ -68,6 +44,8 @@ volatile uint8_t _emission_buf_bitmask = 0;
  * Call once first to set ports
  */
 void softspi_setup(){
+	//CLOCK as input
+	SOFTSPI_DIR &= ~(1 << SOFTSPI_CLK);
 	//MOSI as input
 	SOFTSPI_DIR &= ~(1 << SOFTSPI_MOSI);
 	//MISO as output
