@@ -64,6 +64,8 @@ inline static void test_SoftSPI_reception() {
 		USART_SendString("(");
 		itoa(val, vBuff, 10);
 		USART_SendString(vBuff);
+		USART_SendString("=");
+		USART_Transmit(val);
 		USART_SendString(")\n");
 	}
 	_delay_ms(100);
