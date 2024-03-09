@@ -196,13 +196,13 @@ ISR(SOFTSPI_IntVect) {
 
 	// ******************************** EMISSION ********************************************
 	//Something to send and correct edge?
-	//BEWARE It's the **OPPOSITE** edge of reading (read on failing => write on rising)!
+	//BEWARE It's the **OPPOSITE** edge of reading (read on falling => write on rising)!
 	if (_emission_buf_bitmask != 0x00
 		&&
 		(
 			SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_CHG
-		|| (SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_UP && ((SOFTSPI_PIN & (1 << SOFTSPI_CLK))) == 0)
-		|| (SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_DOWN && ((SOFTSPI_PIN & (1 << SOFTSPI_CLK))) != 0)
+		|| (SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_UP && ((SOFTSPI_PIN & (1 << SOFTSPI_CLK))) != 0)
+		|| (SOFTSPI_CLK_READFLAG == SOFTSPI_CLK_READ_DOWN && ((SOFTSPI_PIN & (1 << SOFTSPI_CLK))) == 0)
 		)){
 
 
@@ -234,6 +234,6 @@ todo!!
 	}
 
 
-	//Not reti() on non-naked ISR (that causes the avr to reset in may case...)
+	//Not reti() on non-naked ISR (that causes the avr to reset in my case...)
 	//reti();
 }
