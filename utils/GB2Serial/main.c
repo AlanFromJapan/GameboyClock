@@ -105,6 +105,52 @@ static inline void test_SoftSPI_emission(const char c) {
 }
 
 
+/**
+ * SENDS a message one byte at a time and loop
+ *
+ */
+void TEST_Send_Message(){
+	// ******************* Testing EMISSION one byte at a time *******************
+	USART_SendString("Testing EMISSION byte per byte\n");
+	sei();
+
+	while (1) {
+		for (uint8_t i = 0; i < strlen(TEST_MESSAGE); i++){
+			test_SoftSPI_emission(TEST_MESSAGE[i] - 'A' );
+			//test_SoftSPI_emission(i+1);
+		}
+	}
+}
+
+/**
+ * Sends continuously the same byte 172=0xAC=0b10101100
+ *
+ */
+void TEST_Send_1byte(){
+	// ******************* Testing EMISSION one SAME BYTE 10101100b = 172 *******************
+	USART_SendString("Testing EMISSION same byte 172 (10101100b)\n");
+	sei();
+
+	while (1) {
+		test_SoftSPI_emission((uint8_t)172);
+	}
+}
+
+
+/**
+ * Receives char by char from GB and echo to Serial UART
+ *
+ */
+void TEST_Receive_Echo2Serial(){
+	USART_SendString("Testing RECEPTION (from GB to muC + echo to Serial UART).\n");
+	sei();
+
+	while (1) {
+		test_SoftSPI_reception();
+	}
+}
+
+
 /************************************************************************/
 /* Main                                                                 */
 /************************************************************************/
@@ -116,48 +162,18 @@ int main(void) {
 	USART_SendString("\n\n------------------------\n");
 	USART_SendString("Let's start.\n");
 
-/*
-	// ******************* Testing EMISSION one SAME BYTE 10101100b = 172 *******************
-	USART_SendString("Testing EMISSION same byte 172 (10101100b)\n");
-	sei();
 
-	while (1) {
-		test_SoftSPI_emission((uint8_t)172);
-	}
-*/
+	// ******************* Testing EMISSION one SAME BYTE 10101100b = 172 *******************
+	//TEST_Send_1byte();
+
 
 	// ******************* Testing EMISSION one byte at a time *******************
-	USART_SendString("Testing EMISSION byte per byte\n");
-	sei();
+	//TEST_Send_Message();
 
-	while (1) {
-		for (uint8_t i = 0; i < strlen(TEST_MESSAGE); i++){
-			test_SoftSPI_emission(TEST_MESSAGE[i] - 'A' );
-			//test_SoftSPI_emission(i+1);
-		}
-	}
 
-/*
-	// ******************* Testing EMISSION *******************
-	USART_SendString("Testing EMISSION (from muC to GB + echo to Serial UART).\n");
-	sei();
-
-	while (1) {
-		for (uint8_t i = 0; i < strlen(TEST_MESSAGE); i++){
-			test_SoftSPI_emission(TEST_MESSAGE[i]);
-			//test_SoftSPI_emission(i+1);
-		}
-		_delay_ms(1000);
-	}
-*/
-/*
 	// ******************* Testing RECEPTION *******************
-	USART_SendString("Testing RECEPTION (from GB to muC + echo to Serial UART).\n");
-	sei();
+	TEST_Receive_Echo2Serial();
 
-	while (1) {
-		test_SoftSPI_reception();
-	}
-*/
+
 	return 0;
 }
