@@ -11,8 +11,11 @@
 /**
  * CONSTANTS
  */
+//Read from Master (= receive) on clock RISING edge
 #define SOFTSPI_CLK_READ_UP		1
+//Read from Master (= receive) on clock FALLING edge
 #define SOFTSPI_CLK_READ_DOWN	2
+//Read from Master (= receive) on clock Changing edge (both rise n fall)
 #define SOFTSPI_CLK_READ_CHG 	0
 
 #define SOFTSPI_BITORDER_LSB 0
@@ -33,7 +36,7 @@
 #define SOFTSPI_MOSI	3
 #define SOFTSPI_MISO	4
 
-//On which clock change to read
+//On which clock change to read and assumes writes TO Master (= send) on the opposite edge
 #define SOFTSPI_CLK_READFLAG 	SOFTSPI_CLK_READ_DOWN
 
 //Expect to receive LSB first (fill byte buffer right to left) or MSB
