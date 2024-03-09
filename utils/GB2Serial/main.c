@@ -24,8 +24,11 @@
 
 #include "SoftSPI.h"
 
+
+#define DO_BLINK
+
 //test message to send
-const char TEST_MESSAGE[] = "HELLOWOR";
+const char TEST_MESSAGE[] = "ABCDEFGH";
 
 /************************************************************************/
 /* Setup                                                                */
@@ -83,10 +86,22 @@ static inline void test_SoftSPI_emission(const char c) {
 	while (!softspi_bytesent()){
 		;
 	}
+
+#ifdef DO_BLINK
+	//C0 on
+	PORTC != 0x01;
+#endif //DO_BLINK
+
 	//road is clear
 	softspi_sendByte(c);
 
 	_delay_ms(20);
+
+#ifdef DO_BLINK
+	//C0 off
+	PORTC &= ~0x01;
+#endif //DO_BLINK
+
 }
 
 
@@ -101,7 +116,15 @@ int main(void) {
 	USART_SendString("\n\n------------------------\n");
 	USART_SendString("Let's start.\n");
 
+	// ******************* Testing EMISSION one SAME BYTE 10101100b = 172 *******************
+	USART_SendString("Testing EMISSION same byte 172 (10101100b)\n");
+	sei();
 
+	while (1) {
+		test_SoftSPI_emission((uint8_t)172);
+	}
+
+/*
 	// ******************* Testing EMISSION one byte at a time *******************
 	USART_SendString("Testing EMISSION byte per byte\n");
 	sei();
@@ -112,6 +135,7 @@ int main(void) {
 			//test_SoftSPI_emission(i+1);
 		}
 	}
+*/
 /*
 	// ******************* Testing EMISSION *******************
 	USART_SendString("Testing EMISSION (from muC to GB + echo to Serial UART).\n");
