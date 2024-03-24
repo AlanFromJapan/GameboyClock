@@ -6,6 +6,15 @@ All the details on the main site: http://electrogeek.cc/gameboy%20clock.html#Ser
 ## Approach
 Here I use the approach of having a device on the Link port to emulate another GB, that will answer the time when asked by the main (= display) GB.
 
+This is meant to work with an ATmega..8 (ATmega8, ATmega88, ATmega328,...).
+
+# Startup and how to use the code
+## Fuses
+I'm having ATmega328P**B** board which then needs the following fuses set:
+
+    avrdude -pm328pb -cavrispmkII -U lfuse:w:0xee:m -U hfuse:w:0xd9:m
+
+
 # Contents
 
 ## Utils/
