@@ -91,7 +91,7 @@ static inline void test_SoftSPI_emission(const char c) {
 
 #ifdef DO_BLINK
 	//C0 on
-	PORTC != 0x01;
+	PORTC |= 0x01;
 #endif //DO_BLINK
 
 	//road is clear
