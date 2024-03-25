@@ -29,12 +29,12 @@
 //Soft SPI using default settings (override defines HERE before include command)
 // YOU HAVE TO SET THEM ALL
 
-#define SOFTSPI_PORT 	PORTD
-#define SOFTSPI_DIR		DDRD
-#define SOFTSPI_PIN		PIND
+#define SOFTSPI_PORT 	PORTB
+#define SOFTSPI_DIR		DDRB
+#define SOFTSPI_PIN		PINB
 #define SOFTSPI_CLK		2
-#define SOFTSPI_MOSI	3
-#define SOFTSPI_MISO	4
+#define SOFTSPI_MOSI	0
+#define SOFTSPI_MISO	1
 
 //On which clock change to read and assumes writes TO Master (= send) on the opposite edge
 #define SOFTSPI_CLK_READFLAG 	SOFTSPI_CLK_READ_DOWN
@@ -46,10 +46,12 @@
 //  So read the doc (ie. Atmega328 port D2 = PCINT18 therefore it's PCIE2)
 //  To make sure ONLY that pin triggers the interrupt, you have to enable it
 //  and that is done with PCMSKx register
-#define SOFTSPI_PCIE			2
-#define SOFTSPI_IntVect			PCINT2_vect
-//in the mask PCMSK2, the PCINT18 (D2) is (0x04)
-#define SOFTSPI_IntPinMask		PCMSK2
+
+// HERE values for the GBLinkClock PCB board with ATmega328 and CLK on D2 => it's PCINT2 so PCIE0 and PCMSK0[bit 2] that raise the PCINT0_vect (same as PCIE0 and PCMSK0)
+// GBLinkClock board https://github.com/AlanFromJapan/pcb-design/tree/master/GameboyLink
+#define SOFTSPI_PCIE			0
+#define SOFTSPI_IntVect			PCINT0_vect
+#define SOFTSPI_IntPinMask		PCMSK0
 #define SOFTSPI_IntPinMaskBit	2
 
 /**
