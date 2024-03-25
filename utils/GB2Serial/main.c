@@ -166,7 +166,7 @@ int main(void) {
 
 
 	// ******************* Testing EMISSION one SAME BYTE 10101100b = 172 *******************
-	//TEST_Send_1byte();
+	TEST_Send_1byte();
 
 
 	// ******************* Testing EMISSION one byte at a time *******************
@@ -174,7 +174,7 @@ int main(void) {
 
 
 	// ******************* Testing RECEPTION *******************
-	TEST_Receive_Echo2Serial();
+	//TEST_Receive_Echo2Serial();
 
 
 	return 0;
