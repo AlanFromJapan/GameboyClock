@@ -42,7 +42,7 @@
 //Expect to receive LSB first (fill byte buffer right to left) or MSB
 #define SOFTSPI_BITORDER		SOFTSPI_BITORDER_MSB
 
-//Used PCIEx interrupt (0-1-2 available): IT DEPENDS ON THE PIN YOU USE FOR MOSI.
+//Used PCIEx interrupt (0-1-2 available): IT DEPENDS ON THE PIN YOU USE FOR *CLK*.
 //  So read the doc (ie. Atmega328 port D2 = PCINT18 therefore it's PCIE2)
 //  To make sure ONLY that pin triggers the interrupt, you have to enable it
 //  and that is done with PCMSKx register
