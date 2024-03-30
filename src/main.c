@@ -50,10 +50,34 @@ uint16_t getTime(){
 	return 0x0C22;
 }
 
+
+/************************************************************************/
+/* [BLOCKING] Wait for serial link request from the GB to send H or M              */
+/* 		Returns what was asked 'H' or 'M'. Others are ignored and stays waiting. */
+/************************************************************************/
+uint8_t waitForNextRequest(){
+	uint8_t val = 0;
+
+	while (1==1) {
+		while (!softspi_hasData()) {/* [BLOCKING] WAIT */}
+
+		//something to read, ignore all but latest
+		while (softspi_hasData()) {
+			val = softspi_getByte();
+		}
+
+		if (val == 'H' || val == 'M'){
+			return val;
+		}
+		//else : resume waiting
+	}
+}
+
+
 /************************************************************************/
 /* SendTime (THE payload)                                               */
 /************************************************************************/
-void sendTime(){
+void sendTime(const uint8_t req){
 	uint16_t tim = getTime();
 
 	//wait for any previous data to be sent
@@ -64,29 +88,17 @@ void sendTime(){
 	//blink on
 	LED_PORT |= LED_MASK;
 
-	//road is clear: send hours
-	softspi_sendByte((uint8_t)(tim >> 8));
-
-	//have a break so your eyes can see the LED flash
-	_delay_ms(20);
-
-	//blink off
-	LED_PORT &= ~LED_MASK;
-
-	//----------------------------------------------
-
-	//wait for any previous data to be sent
-	while (!softspi_bytesent()){
-		;
+	//road is clear
+	if (req == 'H'){
+		//send hours
+		softspi_sendByte((uint8_t)(tim >> 8));
+	}
+	else {
+		//send minutes
+		softspi_sendByte((uint8_t)(tim));
 	}
 
 	//have a break so your eyes can see the LED flash
-	LED_PORT |= LED_MASK;
-
-	//road is clear: send minutes
-	softspi_sendByte((uint8_t)(tim));
-
-	//have a break
 	_delay_ms(20);
 
 	//blink off
@@ -105,7 +117,8 @@ int main(void) {
 	sei();
 
 	while(1) {
-		sendTime();
+		uint8_t req = waitForNextRequest();
+		sendTime(req);
 	}
 
 	return 0;
