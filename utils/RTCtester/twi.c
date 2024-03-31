@@ -15,13 +15,23 @@
 #include "twi.h"
 
 
-void TWIInit(void)
+void _TWIInit(const uint8_t prescaler, const uint8_t bitrate)
 {
-	//set SCL to 400kHz
-	TWSR = 0x00;
-	TWBR = 0x0C;
+	TWSR = prescaler;
+	TWBR = bitrate;
+
 	//enable TWI
 	TWCR = (1<<TWEN);
+}
+void TWIInitPreset(const uint8_t preset)
+{
+	_TWIInit(0x00, preset);
+}
+
+void TWIInit(void)
+{
+	//set SCL to 100kHz - normal speed
+	_TWIInit(0x00, 0x48);
 }
 
 void TWIStart(void)
