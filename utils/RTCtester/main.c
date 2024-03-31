@@ -23,9 +23,6 @@ void mainSetup() {
 	//Start Serial
 	serialHardwareInit();
 
-	//TWI Init
-	TWIInit();
-
 	//DS1307 init
 	setupDS1307();
 }

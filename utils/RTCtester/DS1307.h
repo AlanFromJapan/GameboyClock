@@ -193,18 +193,14 @@ void setTimeDate1307(Date* pDateTime){
 	USART_Transmit('c');
 #endif
 
-	//init ALL to 1 (7 values)
-	for (uint8_t i = 0; i < 7; i++){
-		TWIWrite(decToBcd(1));
-	}
 
-	TWIWrite(pDateTime->second);
-	TWIWrite(pDateTime->minute);
-	TWIWrite(pDateTime->hour);
-	TWIWrite(pDateTime->dayOfWeek);
-	TWIWrite(pDateTime->dayOfMonth);
-	TWIWrite(pDateTime->month);
-	TWIWrite(pDateTime->year);
+	TWIWrite(decToBcd(pDateTime->second));
+	TWIWrite(decToBcd(pDateTime->minute));
+	TWIWrite(decToBcd(pDateTime->hour));
+	TWIWrite(decToBcd(pDateTime->dayOfWeek));
+	TWIWrite(decToBcd(pDateTime->dayOfMonth));
+	TWIWrite(decToBcd(pDateTime->month));
+	TWIWrite(decToBcd(pDateTime->year));
 
 #ifdef SERIAL_DEBUG
 	USART_Transmit('d');
@@ -225,7 +221,9 @@ void setupDS1307(){
 	USART_SendString("\nInit:");
 #endif
 
-	TWIInit();
+	//DS1307 supports 100KHz clock max only
+	// Change this value if the CPU is not at 16MHz!
+	TWIInitPreset(TWI_CLOCK_PRESET_CPU16MHZ_TWI100KHZ);
 
 	TWIStart();
 

@@ -11,8 +11,8 @@
 #include "util/twi.h"
 
 //wellknown preset settings for a given MCU the TWI bus clock speed
-#define TWI_CLOCK_PRESET_16MHZ_100KHZ		0x48
-#define TWI_CLOCK_PRESET_16MHZ_400KHZ		0x0C
+#define TWI_CLOCK_PRESET_CPU16MHZ_TWI100KHZ		0x48
+#define TWI_CLOCK_PRESET_CPU16MHZ_TWI400KHZ		0x0C
 
 void TWIInit();
 void TWIInitPreset(const uint8_t preset);
