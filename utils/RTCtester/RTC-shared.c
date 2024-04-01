@@ -12,10 +12,9 @@
 
 #include "RTC-shared.h"
 
-/*********************************************************************/
-/* Returns a string representation of the date                       */
-/*********************************************************************/
-void dateToString (char *buffer, Date *d);
+//for sprintf()
+#include <stdio.h>
+
 
 // Convert normal decimal numbers to binary coded decimal
 uint8_t decToBcd(uint8_t val)

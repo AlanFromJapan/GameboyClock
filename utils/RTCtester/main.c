@@ -1,5 +1,6 @@
 /*
  * main.c
+ *		Reads time from RTC and spits it on the serial (UART)
  *
  *  Created on: Mar 30, 2024
  *      Author: alan
@@ -14,13 +15,15 @@
 #include "serialComm.h"
 
 #include "RTC-shared.h"
+//Selected RTC. Include one only, it defines the macros for time (rtc...())
 #include "DS1307.h"
 
 #include <avr/eeprom.h>
 
 //where to store the flag if time was set or not
-#define EEPROM_FLAG_ADDR	((const uint8_t*)0x0000)
+#define EEPROM_FLAG_ADDR	((uint8_t*)0x0000)
 #define EEPROM_MAGIC_VALUE	((uint8_t)123)
+
 
 /************************************************************************/
 /* Setup                                                                */
@@ -29,8 +32,8 @@ void mainSetup() {
 	//Start Serial
 	serialHardwareInit();
 
-	//DS1307 init
-	setupDS1307();
+	//RTC init
+	rtcSetup();
 }
 
 
@@ -53,7 +56,7 @@ void setTimeOnce() {
 		d.dayOfMonth = 31;
 		d.month = 3;
 		d.year = 24;
-		setTimeDate1307(&d);
+		rtcWrite(&d);
 
 		eeprom_update_byte(EEPROM_FLAG_ADDR, EEPROM_MAGIC_VALUE);
 	}
@@ -76,7 +79,7 @@ int main(void) {
 
 	while(1) {
 
-		readTime1307(&d);
+		rtcRead(&d);
 
 		char vBuff[20];
 		dateToString(vBuff, &d);

@@ -11,9 +11,6 @@
 
 #include "DS1307.h"
 
-//for sprintf()
-#include <stdio.h>
-
 #include <avr/io.h>
 
 //local TWI primitives implementation
@@ -28,8 +25,6 @@
 #ifdef SERIAL_DEBUG
 #include "serialComm.h"
 #endif
-
-
 
 
 /************************************************************************/
