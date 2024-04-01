@@ -15,6 +15,9 @@
 #include "twi.h"
 
 
+/* ------------------------------------------------------------------------- */
+/* Init 																	 */
+/* ------------------------------------------------------------------------- */
 void _TWIInit(const uint8_t prescaler, const uint8_t bitrate)
 {
 	TWSR = prescaler;
@@ -27,13 +30,13 @@ void TWIInitPreset(const uint8_t preset)
 {
 	_TWIInit(0x00, preset);
 }
-
 void TWIInit(void)
 {
-	//set SCL to 100kHz - normal speed
+	//With a 16MHz CPU, sets SCL to 100kHz - normal speed
 	_TWIInit(0x00, 0x48);
 }
 
+/* ------------------------------------------------------------------------- */
 void TWIStart(void)
 {
 	TWCR = (1<<TWINT)|(1<<TWSTA)|(1<<TWEN);
