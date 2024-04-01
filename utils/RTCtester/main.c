@@ -13,7 +13,7 @@
 
 #include "serialComm.h"
 
-#include "twi.h"
+#include "RTC-shared.h"
 #include "DS1307.h"
 
 /************************************************************************/
