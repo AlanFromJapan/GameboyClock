@@ -43,6 +43,10 @@ uint8_t bcdToDec(uint8_t val)
   return ( (val/16*10) + (val%16) );
 }
 
+
+/************************************************************************/
+/* READS time															*/
+/************************************************************************/
 void readTime1307(Date* pTimeDate){
 	uint8_t status = 0x00;
 
@@ -82,12 +86,14 @@ USART_Transmit('D');
 	USART_SendString(vBuff);
 	USART_Transmit('E');
 #endif
+
 	TWIStop();
+
 #ifdef SERIAL_DEBUG
 USART_Transmit('F');
 #endif
 
-	_delay_ms(20); //in case
+	_delay_ms(10); //in case
 
 	TWIStart();
 #ifdef SERIAL_DEBUG
@@ -116,8 +122,11 @@ USART_Transmit('I');
 	}
 
 	//Read 1: Seconds
-	status = TWIReadNACK();
-	if (TWIGetStatus() != TW_MR_DATA_NACK){
+	status = TWIReadACK();
+	if (TWIGetStatus() != TW_MR_DATA_ACK){
+#ifdef SERIAL_DEBUG
+USART_Transmit('J');
+#endif
 		//something wrong
 		pTimeDate->hour = TWIGetStatus();
 		pTimeDate->minute = pTimeDate->hour;
@@ -127,17 +136,21 @@ USART_Transmit('I');
 
 	//bit 7 is the CH flag so ignore it
 	pTimeDate->second = bcdToDec(status & 0x7f);
-	status = TWIReadNACK();
+	status = TWIReadACK();
 	pTimeDate->minute = bcdToDec(status);
-	status = TWIReadNACK();
+	status = TWIReadACK();
 	//bit 7~6 are for control
 	pTimeDate->hour = bcdToDec(status & 0x3f);
-	status = TWIReadNACK();
+	status = TWIReadACK();
 	pTimeDate->dayOfWeek = bcdToDec(status);
-	status = TWIReadNACK();
+	status = TWIReadACK();
 	pTimeDate->dayOfMonth = bcdToDec(status);
-	status = TWIReadNACK();
+	status = TWIReadACK();
 	pTimeDate->month = bcdToDec(status);
+
+	//for the life of me I don't know why the last one has to be NACK and not ACK.
+	//if set as ACK, the code returns fine BUT you can't re-enter the TWI bus and TWIStart()
+	//waits forever... Future me, good luck, but it works now. (sorry)
 	status = TWIReadNACK();
 	pTimeDate->year = bcdToDec(status);
 
@@ -146,8 +159,9 @@ USART_Transmit('I');
 
 }
 
-//=====================================================================================
-
+/************************************************************************/
+/* SETS time															*/
+/************************************************************************/
 void setTimeDate1307(Date* pDateTime){
 	uint8_t status;
 #ifdef SERIAL_DEBUG
@@ -155,9 +169,6 @@ void setTimeDate1307(Date* pDateTime){
 
 	USART_SendString("\nSet:");
 #endif
-
-	TWIInit();
-
 
 	TWIStart();
 

@@ -39,13 +39,13 @@ int main(void) {
 	USART_SendString("Let's start.\n");
 
 	Date d;
-	d.second =55;
-	d.minute= 1;
-	d.hour = 2 ;
-	d.dayOfMonth = 31;
-	d.month = 3;
-	d.year = 24;
-	setTimeDate1307(&d);
+//	d.second =55;
+//	d.minute= 1;
+//	d.hour = 2 ;
+//	d.dayOfMonth = 31;
+//	d.month = 3;
+//	d.year = 24;
+//	setTimeDate1307(&d);
 
 	while(1) {
 
