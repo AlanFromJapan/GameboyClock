@@ -125,10 +125,12 @@ USART_Transmit('I');
 		return;
 	}
 
+	//bit 7 is the CH flag so ignore it
 	pTimeDate->second = bcdToDec(status & 0x7f);
 	status = TWIReadNACK();
 	pTimeDate->minute = bcdToDec(status);
 	status = TWIReadNACK();
+	//bit 7~6 are for control
 	pTimeDate->hour = bcdToDec(status & 0x3f);
 	status = TWIReadNACK();
 	pTimeDate->dayOfWeek = bcdToDec(status);
@@ -147,7 +149,7 @@ USART_Transmit('I');
 //=====================================================================================
 
 void setTimeDate1307(Date* pDateTime){
-	uint8_t status = 0;
+	uint8_t status;
 #ifdef SERIAL_DEBUG
 	char vBuff[15];
 
@@ -194,9 +196,11 @@ void setTimeDate1307(Date* pDateTime){
 #endif
 
 
-	TWIWrite(decToBcd(pDateTime->second));
+	//bit 7 of register 0x00 (seconds) is the CH (Clock Halt) -> if set to 1 then the clock stops so force to zero
+	TWIWrite(decToBcd(pDateTime->second) & 0x7f);
 	TWIWrite(decToBcd(pDateTime->minute));
-	TWIWrite(decToBcd(pDateTime->hour));
+	//bit 7 is ignored, bit 6 is 24h format: low means 24h mode, high means 12h AM/PM.
+	TWIWrite(decToBcd(pDateTime->hour) & 0x3f);
 	TWIWrite(decToBcd(pDateTime->dayOfWeek));
 	TWIWrite(decToBcd(pDateTime->dayOfMonth));
 	TWIWrite(decToBcd(pDateTime->month));
@@ -214,7 +218,7 @@ void setTimeDate1307(Date* pDateTime){
 //=====================================================================================
 
 void setupDS1307(){
-	uint8_t status = 0;
+	uint8_t status;
 #ifdef SERIAL_DEBUG
 	char vBuff[15];
 
@@ -248,7 +252,8 @@ void setupDS1307(){
 	USART_Transmit('b');
 #endif
 
-	TWIWrite(0x0E);
+	//got to the control register at 0x07
+	TWIWrite(0x07);
 
 	_delay_ms(1);
 	status = TWIGetStatus();
@@ -260,8 +265,8 @@ void setupDS1307(){
 	USART_Transmit('c');
 #endif
 
-	//TWIWrite(0x1C);
-	TWIWrite(0x1C);
+	//no square wave output
+	TWIWrite(0x00);
 
 
 #ifdef SERIAL_DEBUG
@@ -284,6 +289,6 @@ void setupDS1307(){
 /*********************************************************************/
 void dateToString (char *buffer, Date *d){
 	//sprintf(buffer, "%00d:%00d:%00d", d->hour, d->minute, d->second);
-	sprintf(buffer, "%00d/%00d/%00d %00d:%00d:%00d", d->year, d->month, d->dayOfMonth, d->hour, d->minute, d->second);
+	sprintf(buffer, "%02d/%02d/%02d %02d:%02d:%02d", d->year, d->month, d->dayOfMonth, d->hour, d->minute, d->second);
 }
-#endif __RTC1307_H__
+#endif // __RTC1307_H__
