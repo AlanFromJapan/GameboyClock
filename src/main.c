@@ -27,6 +27,10 @@
 //other config
 #include "config.h"
 
+#include <avr/eeprom.h>
+
+volatile uint16_t latestTime = 0x0000;
+
 /************************************************************************/
 /* Setup                                                                */
 /************************************************************************/
@@ -39,6 +43,33 @@ void mainSetup() {
 	LED_DDR |= LED_MASK;
 	//LED off
 	LED_PORT &= ~LED_MASK;
+
+	//RTC init
+	rtcSetup();
+}
+
+/************************************************************************/
+/* At startup, checks if time was set at least once. If not does it.    */
+/* ==> SEE THE README.MD ON HOW PRESERVE EEPROM BETWEEN PROG CYCLES <== */
+/************************************************************************/
+void setTimeOnce(uint8_t forceUpdate) {
+	uint8_t flag;
+
+	flag = eeprom_read_byte(EEPROM_FLAG_ADDR);
+
+	if (flag != EEPROM_MAGIC_VALUE || forceUpdate != 0) {
+		Date d;
+		d.second = 05;
+		d.minute= 37;
+		d.hour = 21 ;
+		//d.dayOfWeek = 2;
+		d.dayOfMonth = 2;
+		d.month = 4;
+		d.year = 24;
+		rtcWrite(&d);
+
+		eeprom_update_byte(EEPROM_FLAG_ADDR, EEPROM_MAGIC_VALUE);
+	}
 }
 
 /************************************************************************/
@@ -46,8 +77,10 @@ void mainSetup() {
 /*    Returns:0xhhmm                                                    */
 /************************************************************************/
 uint16_t getTime(){
-	//returns h=12 (0x0C) and m=34 (0x22)
-	return 0x0C22;
+	Date d;
+	rtcRead(&d);
+
+	return ((uint16_t)(d.hour << 8)) | (uint16_t)(d.minute);
 }
 
 
@@ -78,7 +111,6 @@ uint8_t waitForNextRequest(){
 /* SendTime (THE payload)                                               */
 /************************************************************************/
 void sendTime(const uint8_t req){
-	uint16_t tim = getTime();
 
 	//wait for any previous data to be sent
 	while (!softspi_bytesent()){
@@ -91,11 +123,16 @@ void sendTime(const uint8_t req){
 	//road is clear
 	if (req == 'H'){
 		//send hours
-		softspi_sendByte((uint8_t)(tim >> 8));
+		softspi_sendByte((uint8_t)(latestTime >> 8));
 	}
 	else {
 		//send minutes
-		softspi_sendByte((uint8_t)(tim));
+		softspi_sendByte((uint8_t)(latestTime));
+	}
+
+	//if we sent minutes, ask for and update on the time
+	if (req == 'M'){
+		latestTime = getTime();
 	}
 
 	//have a break so your eyes can see the LED flash
@@ -112,6 +149,9 @@ void sendTime(const uint8_t req){
 int main(void) {
 	//Setup!
 	mainSetup();
+
+	//set time in case
+	setTimeOnce(0);
 
 	//needed for SoftSPI: enable the interrupts
 	sei();

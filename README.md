@@ -17,8 +17,19 @@ I'm having ATmega328P**B** board which then needs the following fuses set:
 
 # Contents
 
-## Utils/
+## Src/ - The main program
+
+The MCU (ATmegaxx8 family) code that polls the onboard RTC and sends the time to the Gameboy via the Link port.
+
+## Utils/ - Tools etc.
 Some utilitary programs such as:
-- GB2Serial : an "echo to serial" what is received from the GB to the UART of the mUC. Implements the SoftSPI I wrote for the occasion. 
-- PoorManSignalGen : just a poor man signal generator for the tests since I don't have one. 
+### GB2Serial
+An "echo to serial" what is received from the GB to the UART of the mUC. Implements the SoftSPI I wrote for the occasion. 
+
+### PoorManSignalGen
+Just a poor man signal generator for the tests since I don't have one. 
 ![oscillo signal](https://github.com/AlanFromJapan/GameboyClock/blob/main/utils/PoormanSignalGen/Resources/20240203_172842.jpg?raw=true)
+
+### RTCtester
+Tests the RTC on the board and output time to UART (COM Serial).
+
