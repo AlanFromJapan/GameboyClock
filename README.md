@@ -1,7 +1,9 @@
 # GameboyClock
 Code for a Gameboy as a clock project: the idea is to use your gameboy to display the time. Absolutely useless, yes. But so much fun to do!
 
-All the details on the main site: http://electrogeek.cc/gameboy%20clock.html#SerialMode
+All the details on the main site: 👉 http://electrogeek.cc/gameboy%20clock.html#SerialMode 👈
+
+![The PCB, the MCU code from this repo, and the GB game final result](https://github.com/AlanFromJapan/GameboyClock/blob/main/images/20240402_214334.jpg?raw=true)
 
 ## Approach
 Here I use the approach of having a device on the Link port to emulate another GB, that will answer the time when asked by the main (= display) GB.
