@@ -14,10 +14,13 @@
 #include "RTC/DS1307.h"
 
 
-//Led is on D3
-#define LED_MASK	0x08
+//Led are on D3 & D5
+#define LED_1		0x08
+#define LED_2		0x20
+#define LED_MASK	(LED_1 | LED_2)
 #define LED_PORT	PORTD
 #define LED_DDR		DDRD
+
 
 
 

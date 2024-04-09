@@ -29,7 +29,8 @@
 
 #include <avr/eeprom.h>
 
-volatile uint16_t latestTime = 0x0000;
+//HMS
+volatile uint8_t latestTime[3];
 
 /************************************************************************/
 /* Setup                                                                */
@@ -73,20 +74,21 @@ void setTimeOnce(uint8_t forceUpdate) {
 }
 
 /************************************************************************/
-/* GetTime from the onboard RTC                                         */
-/*    Returns:0xhhmm                                                    */
+/* GetTime from the onboard RTC and store in global var                 */
 /************************************************************************/
-uint16_t getTime(){
+inline void getTime(){
 	Date d;
 	rtcRead(&d);
 
-	return ((uint16_t)(d.hour << 8)) | (uint16_t)(d.minute);
+	latestTime[0]=d.hour;
+	latestTime[1]=d.minute;
+	latestTime[2]=d.second;
 }
 
 
 /************************************************************************/
-/* [BLOCKING] Wait for serial link request from the GB to send H or M              */
-/* 		Returns what was asked 'H' or 'M'. Others are ignored and stays waiting. */
+/* [BLOCKING] Wait for serial link request from the GB to send H or M or S  */
+/* 		Returns what was asked 'H' or 'M' or 'S'. Others are ignored and stays waiting. */
 /************************************************************************/
 uint8_t waitForNextRequest(){
 	uint8_t val = 0;
@@ -99,7 +101,7 @@ uint8_t waitForNextRequest(){
 			val = softspi_getByte();
 		}
 
-		if (val == 'H' || val == 'M'){
+		if (val == 'H' || val == 'M' || val == 'S'){
 			return val;
 		}
 		//else : resume waiting
@@ -118,28 +120,31 @@ void sendTime(const uint8_t req){
 	}
 
 	//blink on
-	LED_PORT |= LED_MASK;
+	LED_PORT |= LED_2;
 
-	//road is clear
-	if (req == 'H'){
-		//send hours
-		softspi_sendByte((uint8_t)(latestTime >> 8));
-	}
-	else {
-		//send minutes
-		softspi_sendByte((uint8_t)(latestTime));
+	//road is clear : send the time component requested
+	switch (req){
+		case 'H':
+			softspi_sendByte(latestTime[0]);
+			break;
+		case 'M':
+			softspi_sendByte(latestTime[1]);
+			break;
+		case 'S':
+			softspi_sendByte(latestTime[2]);
+			break;
 	}
 
-	//if we sent minutes, ask for and update on the time
-	if (req == 'M'){
-		latestTime = getTime();
-	}
+	//if we sent seconds, ask for and update on the time
+	//if (req == 'S'){
+		getTime();
+	//}
 
 	//have a break so your eyes can see the LED flash
-	_delay_ms(20);
+	_delay_ms(10);
 
 	//blink off
-	LED_PORT &= ~LED_MASK;
+	LED_PORT &= ~LED_2;
 
 }
 
