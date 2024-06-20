@@ -137,11 +137,11 @@ ISR(SOFTSPI_IntVect) {
 #ifdef _DEBUG_BLINK
 	//Blink! ~~~~~~~~
 	//C0 on
-	PORTC |= 0x01;
+	PORTB |= 0x01;
     //small delay
 	_delay_ms(50);
 	//C0 off
-	PORTC &= ~0x01;
+	PORTB &= ~0x01;
 #endif //_DEBUG_BLINK
 
 	// ******************************** RECEPTION ********************************************
