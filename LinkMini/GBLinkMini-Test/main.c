@@ -8,20 +8,11 @@
 #include "avr/io.h"
 #include "util/delay.h"
 
+#include "AVR156/TWI_master.h"
+#include "RTC/DS1307.h"
 
 #include "SoftSPI-config.h"
 #include "SoftSPI.h"
-
-struct time {
-	uint8_t h;
-	uint8_t m;
-	uint8_t s;
-
-};
-
-volatile struct time faketime;
-volatile uint8_t fakeTimeDivider = 0;
-#define FAKETIMEDIV	8
 
 
 /************************************************************************/
@@ -46,32 +37,6 @@ uint8_t waitForNextRequest(){
 	}
 }
 
-struct time getFakeTime(){
-	fakeTimeDivider++;
-	if (fakeTimeDivider >= FAKETIMEDIV){
-		fakeTimeDivider = 0;
-	}
-	else
-		return faketime;
-
-	faketime.s ++;
-
-	if (faketime.s >= 60){
-		faketime.s = 0;
-		faketime.m++;
-	}
-
-	if (faketime.m >= 60){
-		faketime.m = 0;
-		faketime.h++;
-	}
-
-	if (faketime.h >= 24){
-		faketime.h = 0;
-	}
-
-	return faketime;
-}
 
 /************************************************************************/
 /* SendTime (THE payload)                                               */
@@ -83,21 +48,21 @@ void sendTime(const uint8_t req){
 		;
 	}
 
-
-	struct time t = getFakeTime();
-
-	//road is clear : send the time component requested
-	switch (req){
-		case 'H':
-			softspi_sendByte(t.h);
-			break;
-		case 'M':
-			softspi_sendByte(t.m);
-			break;
-		case 'S':
-			softspi_sendByte(t.s);
-			break;
-	}
+//
+//	struct Date t ; //assign me!
+//
+//	//road is clear : send the time component requested
+//	switch (req){
+//		case 'H':
+//			softspi_sendByte(t.h);
+//			break;
+//		case 'M':
+//			softspi_sendByte(t.m);
+//			break;
+//		case 'S':
+//			softspi_sendByte(t.s);
+//			break;
+//	}
 
 
 
@@ -111,11 +76,6 @@ void sendTime(const uint8_t req){
 int main (){
 	//leds out
 	DDRB = 0x03;
-
-	faketime.h = 01;
-	faketime.m = 23;
-	faketime.s = 45;
-
 
 	softspi_setup();
 
