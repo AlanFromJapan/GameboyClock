@@ -9,11 +9,13 @@
 #include "util/delay.h"
 
 #include "AVR156/TWI_master.h"
+#include "RTC/RTC-shared.h"
 #include "RTC/DS1307.h"
 
 #include "SoftSPI-config.h"
 #include "SoftSPI.h"
 
+struct Date t ;
 
 /************************************************************************/
 /* [BLOCKING] Wait for serial link request from the GB to send H or M or S  */
@@ -48,21 +50,22 @@ void sendTime(const uint8_t req){
 		;
 	}
 
-//
-//	struct Date t ; //assign me!
-//
-//	//road is clear : send the time component requested
-//	switch (req){
-//		case 'H':
-//			softspi_sendByte(t.h);
-//			break;
-//		case 'M':
-//			softspi_sendByte(t.m);
-//			break;
-//		case 'S':
-//			softspi_sendByte(t.s);
-//			break;
-//	}
+
+
+	readTime1307(&t);
+
+	//road is clear : send the time component requested
+	switch (req){
+		case 'H':
+			softspi_sendByte(t.hour);
+			break;
+		case 'M':
+			softspi_sendByte(t.minute);
+			break;
+		case 'S':
+			softspi_sendByte(t.second);
+			break;
+	}
 
 
 
@@ -76,15 +79,28 @@ void sendTime(const uint8_t req){
 int main (){
 	//leds out
 	DDRB = 0x03;
+//
+//	setupDS1307();
+//
+//	t.hour = 11;
+//	t.minute = 22;
+//	t.second = 33;
+//	setTimeDate1307(&t);
+
+	twi_init();
+
+	t.hour = 1;
+	t.minute = 2;
+	t.second = 3;
 
 	softspi_setup();
+
 
 	while(1) {
 
 		PORTB |= 0x02;
 		PORTB &= ~(0x01);
 
-		_delay_ms(10);
 
 		uint8_t req = waitForNextRequest();
 		sendTime(req);

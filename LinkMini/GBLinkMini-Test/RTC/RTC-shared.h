@@ -10,7 +10,7 @@
 
 #include <avr/io.h>
 
-typedef struct {
+struct Date {
   uint8_t second;
   uint8_t minute;
   uint8_t hour;
@@ -19,13 +19,8 @@ typedef struct {
   uint8_t month;
   uint8_t year;
 }
-Date;
+;
 
-
-/*********************************************************************/
-/* Returns a string representation of the date                       */
-/*********************************************************************/
-void dateToString (char *buffer, Date *d);
 
 // Convert normal decimal numbers to binary coded decimal
 uint8_t decToBcd(uint8_t val);

@@ -15,9 +15,6 @@
 
 
 
-//for the TWI constants
-#include <util/twi.h>
-
 //set debug mode
 //#define SERIAL_DEBUG
 
@@ -35,10 +32,8 @@ extern char read_bytes(unsigned char* data, char bytes);
 /************************************************************************/
 /* READS time															*/
 /************************************************************************/
-void readTime1307(Date* pTimeDate){
+void readTime1307(struct Date* pTimeDate){
 	uint8_t i2cbuff [16];
-
-	twi_init();
 
 	i2cbuff[0] = 0x00;
 	write_data(i2cbuff, 1); //move to reg 0
@@ -63,10 +58,8 @@ void readTime1307(Date* pTimeDate){
 /************************************************************************/
 /* SETS time															*/
 /************************************************************************/
-void setTimeDate1307(Date* pDateTime){
+void setTimeDate1307(struct Date* pDateTime){
 	uint8_t i2cbuff [16];
-
-	twi_init();
 
 	//got to register 0x00 (seconds)
 	i2cbuff[0] = 0x00;
